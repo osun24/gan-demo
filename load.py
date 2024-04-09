@@ -1,10 +1,9 @@
 from tensorflow.keras.models import load_model
 import tensorflow as tf
-import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the generator model
-loaded_generator = load_model('generator_model.h5')
+loaded_generator = load_model('mnist_generator_model.h5')
 
 # Generate random noise
 noise = tf.random.normal([1, 100])

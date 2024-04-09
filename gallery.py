@@ -2,7 +2,6 @@ import tensorflow as tf
 import tkinter as tk
 from PIL import Image, ImageTk
 import numpy as np
-from tkinter import font as tkFont
 
 class MNISTGallery:
     def __init__(self, root):

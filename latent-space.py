@@ -22,4 +22,4 @@ def plot_latent_space(generator_model_path, n, dim):
     ax.scatter(x_pca[:, 0], x_pca[:, 1], x_pca[:, 2])
     plt.show()
 
-plot_latent_space('/path/to/mnist_generator_model.h5', 10, 100) # Adjust '10' for the grid size, '100' for the latent dimension size
+plot_latent_space('mnist_generator_model_all.h5', 10, 100) # Adjust '10' for the grid size, '100' for the latent dimension size

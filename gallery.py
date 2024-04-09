@@ -9,7 +9,7 @@ class MNISTGallery:
         self.root = root
 
         # Load the model from h5 file
-        self.load_model("mnist_generator_model_3.h5")
+        self.load_model("mnist_generator_model_all.h5")
 
         # Set up the UI components: canvas, buttons, and labels
         self.canvas = tk.Canvas(root, width=280, height=280)

@@ -36,8 +36,8 @@ def make_discriminator_model():
     model.add(layers.Dense(1))
     return model
 
-generator_optimizer = tf.keras.optimizers.legacy.Adam(1e-4)
-discriminator_optimizer = tf.keras.optimizers.legacy.Adam(1e-4)
+generator_optimizer = tf.keras.optimizers.Adam(1e-4)
+discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
 
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
@@ -57,6 +57,7 @@ def plot_training_history(history):
     plt.ylabel('Loss')
     plt.legend()
     plt.savefig(f'training_history_{trial}.png')
+    plt.show(False)
     plt.clf()
 
 def generate_and_save_images(model, epoch, test_input):
@@ -72,11 +73,12 @@ def generate_and_save_images(model, epoch, test_input):
 
     # Save the generated images
     plt.savefig(f'image_at_epoch_{epoch:04d}.png')
+    plt.show(False)
     plt.clf()
 
 # Load and preprocess the MNIST dataset
 (train_images, train_labels), (test_images, test_labels)= mnist.load_data()
-train_images = tf.concat([train_images, test_images[test_labels == 0]], axis=0)
+train_images = tf.concat([train_images, test_images], axis=0)
 train_images = tf.reshape(train_images, (train_images.shape[0], 28, 28, 1))
 train_images = tf.cast(train_images, tf.float32)
 train_images = (train_images - 127.5) / 127.5  # Normalize the images to [-1, 1]
@@ -110,7 +112,7 @@ def train_step(images):
 
     generator_optimizer.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
     discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
-    
+
     return gen_loss, disc_loss
 
 # Train the GAN for 50 epochs

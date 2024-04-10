@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 model_num = glob.glob("*.h5")
 trial = len(model_num) + 1
 
+# Define the generator and discriminator models
 def make_generator_model(input_dim):
     model = tf.keras.Sequential()
     model.add(layers.Dense(7*7*256, use_bias=False, input_shape=(input_dim,)))
@@ -36,11 +37,15 @@ def make_discriminator_model():
     model.add(layers.Dense(1))
     return model
 
+# Define the loss functions and optimizers
 generator_optimizer = tf.keras.optimizers.Adam(1e-4)
 discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
 
+# Binary cross entropy loss
+# Equation: -[y * log(p) + (1 - y) * log(1 - p)], where p is the predicted probability and y is the true label
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
+# Create the plot of the training history
 def plot_training_history(history):
     plt.plot(history['gen_loss'], label='gen_loss')
     plt.plot(history['disc_loss'], label='disc_loss')
@@ -51,6 +56,7 @@ def plot_training_history(history):
     plt.show(False)
     plt.clf()
 
+# Generate and save images for periodic checking of the model's progress
 def generate_and_save_images(model, epoch, test_input):
     # 'training' is set to False so all layers run in inference mode (batchnorm).
     predictions = model(test_input, training=False)
@@ -98,6 +104,7 @@ def train_step(images):
 
         disc_loss = cross_entropy(tf.ones_like(real_output), real_output) + cross_entropy(tf.zeros_like(fake_output), fake_output)
 
+    # Compute the gradients of the discriminator with respect to the loss
     gradients_of_discriminator = disc_tape.gradient(disc_loss, discriminator.trainable_variables)
     discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
 
@@ -109,6 +116,7 @@ def train_step(images):
 
         gen_loss = cross_entropy(tf.ones_like(fake_output), fake_output)
 
+    # Compute the gradients of the generator with respect to the loss
     gradients_of_generator = gen_tape.gradient(gen_loss, generator.trainable_variables)
     generator_optimizer.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
 

@@ -41,18 +41,6 @@ discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
 
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
-# Use the real and fake output to calculate the discriminator loss
-# Uses the cross entropy loss function
-def discriminator_loss(real_output, fake_output):
-    real_loss = cross_entropy(tf.ones_like(real_output), real_output)
-    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
-    total_loss = real_loss + fake_loss
-    return total_loss
-
-# Use the fake output to calculate the generator loss 
-def generator_loss(fake_output):
-    return cross_entropy(tf.ones_like(fake_output), fake_output)
-
 def plot_training_history(history):
     plt.plot(history['gen_loss'], label='gen_loss')
     plt.plot(history['disc_loss'], label='disc_loss')
@@ -101,20 +89,28 @@ discriminator = make_discriminator_model()
 def train_step(images):
     noise = tf.random.normal([BATCH_SIZE, 100])
 
-    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-        generated_images = generator(noise, training=True)
+    # Train discriminator
+    with tf.GradientTape() as disc_tape:
+        generated_images = generator(noise, training=False)  # Freeze generator
 
         real_output = discriminator(images, training=True)
         fake_output = discriminator(generated_images, training=True)
 
-        gen_loss = cross_entropy(tf.ones_like(fake_output), fake_output)
         disc_loss = cross_entropy(tf.ones_like(real_output), real_output) + cross_entropy(tf.zeros_like(fake_output), fake_output)
 
-    gradients_of_generator = gen_tape.gradient(gen_loss, generator.trainable_variables)
     gradients_of_discriminator = disc_tape.gradient(disc_loss, discriminator.trainable_variables)
-
-    generator_optimizer.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
     discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
+
+    # Train generator
+    with tf.GradientTape() as gen_tape:
+        generated_images = generator(noise, training=True)  # Unfreeze generator
+
+        fake_output = discriminator(generated_images, training=False)  # Freeze discriminator
+
+        gen_loss = cross_entropy(tf.ones_like(fake_output), fake_output)
+
+    gradients_of_generator = gen_tape.gradient(gen_loss, generator.trainable_variables)
+    generator_optimizer.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
 
     return gen_loss, disc_loss
 
